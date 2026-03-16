@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎅 NNL Display Settings</title>
+<style>
+:root {
+    --red:   #c0392b;
+    --green: #27ae60;
+    --blue:  #2980b9;
+    --dark:  #1a1a2e;
+    --card:  #fff;
+    --border:#dde;
+    --text:  #222;
+    --sub:   #666;
+    --radius:10px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Segoe UI',system-ui,sans-serif; background:#f0f2f7; color:var(--text); }
+
+header {
+    background: linear-gradient(135deg, var(--dark), #16213e);
+    color:#fff; padding:16px 28px;
+    display:flex; align-items:center; gap:14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+    position:sticky; top:0; z-index:100;
+}
+header h1 { font-size:1.3em; font-weight:700; }
+header .status { margin-left:auto; font-size:.85em; opacity:.8; }
+header .status span { display:inline-block; width:10px; height:10px; border-radius:50%; background:#555; margin-right:6px; }
+header .status.live span { background:#2ecc71; box-shadow:0 0 6px #2ecc71; }
+header .status.error span { background:#e74c3c; }
+
+.container { max-width:1100px; margin:0 auto; padding:24px 16px; }
+
+.tabs { display:flex; gap:4px; margin-bottom:20px; flex-wrap:wrap; }
+.tab-btn {
+    padding:9px 18px; border:none; border-radius:6px 6px 0 0;
+    background:#dde; color:#555; cursor:pointer; font-size:.9em; font-weight:600;
+    transition: background .15s, color .15s;
+}
+.tab-btn.active { background:#fff; color:var(--blue); border-bottom:2px solid var(--blue); }
+.tab-btn:hover:not(.active) { background:#ccd; }
+
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:700px){ .grid { grid-template-columns:1fr; } }
+
+.card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius); padding:20px 22px;
+    box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.card h2 { font-size:1em; font-weight:700; margin-bottom:14px; padding-bottom:10px;
+           border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:.82em; font-weight:600; color:var(--sub); margin-bottom:5px; text-transform:uppercase; letter-spacing:.04em; }
+.field input[type=text],
+.field input[type=number],
+.field input[type=time],
+.field input[type=url],
+.field input[type=password],
+.field select {
+    width:100%; padding:8px 11px; border:1px solid #ccd; border-radius:6px;
+    font-size:.95em; background:#fafafa; transition:border .15s;
+}
+.field input:focus, .field select:focus { border-color:var(--blue); outline:none; background:#fff; }
+.field .hint { font-size:.78em; color:var(--sub); margin-top:4px; }
+
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.field-row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+
+.color-row { display:flex; align-items:center; gap:10px; }
+.color-row input[type=color] { width:44px; height:36px; border:1px solid #ccd; border-radius:6px; padding:2px; cursor:pointer; }
+.color-row input[type=text] { flex:1; }
+
+/* Canvas preview */
+.canvas-wrap {
+    background:#111; border-radius:8px; padding:12px;
+    overflow:auto;
+}
+#canvas-preview {
+    position:relative; background:#222; border:1px solid #444;
+    margin:0 auto;
+}
+.canvas-block {
+    position:absolute; border:2px solid rgba(255,255,255,.4);
+    border-radius:3px; display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; color:#fff; text-align:center;
+    line-height:1.25; text-shadow:0 1px 2px rgba(0,0,0,.8);
+    overflow:hidden; cursor:default;
+}
+.role-title { background:rgba(192,57,43,.75); border-color:#e74c3c; }
+.role-names { background:rgba(39,174,96,.65); border-color:#2ecc71; }
+
+/* Screens list */
+.screen-row { background:#f8f9fb; border:1px solid #dde; border-radius:8px; padding:14px 16px; margin-bottom:12px; }
+.screen-row-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.screen-row-head strong { flex:1; font-size:.95em; }
+.screen-fields { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; }
+.screen-fields .field { margin-bottom:0; }
+.screen-calc { font-size:.78em; color:var(--blue); font-weight:600; margin-top:6px; }
+
+/* Presets */
+.preset-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+.preset-bar select { flex:1; min-width:160px; padding:7px 10px; border:1px solid #ccd; border-radius:6px; }
+
+/* Buttons */
+.btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border:none; border-radius:7px;
+       font-size:.9em; font-weight:600; cursor:pointer; transition:opacity .15s, transform .1s; }
+.btn:hover { opacity:.88; }
+.btn:active { transform:scale(.97); }
+.btn-primary  { background:var(--blue);  color:#fff; }
+.btn-success  { background:var(--green); color:#fff; }
+.btn-danger   { background:var(--red);   color:#fff; }
+.btn-ghost    { background:#eee; color:#444; }
+.btn-sm       { padding:6px 12px; font-size:.82em; }
+
+.save-bar {
+    position:sticky; bottom:0; background:#fff; border-top:1px solid var(--border);
+    padding:12px 20px; display:flex; align-items:center; gap:12px;
+    box-shadow:0 -2px 10px rgba(0,0,0,.08); z-index:50;
+}
+.save-msg { font-size:.9em; color:var(--green); font-weight:600; opacity:0; transition:opacity .3s; }
+.save-msg.show { opacity:1; }
+
+.restart-notice {
+    background:#fff8e1; border:1px solid #ffe082; border-radius:8px;
+    padding:12px 16px; margin-bottom:16px; font-size:.9em; color:#6d4c00;
+    display:none;
+}
+.restart-notice.show { display:block; }
+</style>
+</head>
+<body>
+
+<header>
+    <span style="font-size:2em">🎅</span>
+    <h1>Naughty or Nice — Display Settings</h1>
+    <div class="status" id="status-indicator">
+        <span></span><span id="status-text">Connecting…</span>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="restart-notice" id="restart-notice">
+        ⚠️ Settings have changed. <strong>Restart the display</strong> for changes to take effect.
+        <button class="btn btn-danger btn-sm" style="margin-left:10px" onclick="restartDisplay()">🔄 Restart Now</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="connection">🔌 Connection</button>
+        <button class="tab-btn" data-tab="hardware">🖥️ Hardware</button>
+        <button class="tab-btn" data-tab="timing">⏱️ Timing</button>
+        <button class="tab-btn" data-tab="appearance">🎨 Appearance</button>
+        <button class="tab-btn" data-tab="presets">💾 Presets</button>
+        <button class="tab-btn" data-tab="preview">🖥️ Preview</button>
+    </div>
+
+    <!-- CONNECTION -->
+    <div class="tab-panel active" id="tab-connection">
+        <div class="grid">
+            <div class="card">
+                <h2>🌐 WordPress API</h2>
+                <div class="field">
+                    <label>API URL</label>
+                    <input type="url" id="api_url" placeholder="https://your-site.com/wp-json/nnl/v1/names">
+                    <div class="hint">The names endpoint from your WordPress plugin dashboard.</div>
+                </div>
+                <div class="field">
+                    <label>API Key</label>
+                    <input type="password" id="api_key" placeholder="Leave blank if no key set">
+                    <div class="hint">Must match the key set in WordPress → NNL Settings.</div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Poll interval (seconds)</label>
+                        <input type="number" id="poll_interval" min="5" max="3600">
+                    </div>
+                    <div class="field">
+                        <label>Names to fetch</label>
+                        <input type="number" id="limit" min="1" max="500">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Name display order</label>
+                    <select id="order">
+                        <option value="recent">Most recent first</option>
+                        <option value="oldest">Oldest first</option>
+                        <option value="random">Random</option>
+                    </select>
+                </div>
+                <button class="btn btn-ghost" style="margin-top:4px" onclick="testApi()">🧪 Test Connection</button>
+                <span id="api-test-result" style="font-size:.85em;margin-left:10px"></span>
+            </div>
+
+            <div class="card">
+                <h2>🔌 Network Interface</h2>
+                <div class="field">
+                    <label>USB Gigabit Ethernet adapter</label>
+                    <input type="text" id="iface" placeholder="eth1">
+                    <div class="hint">Run <code>ip link show</code> on the Pi to find the adapter name.</div>
+                </div>
+                <div class="field">
+                    <label>Display brightness (0–255)</label>
+                    <input type="number" id="brightness" min="0" max="255">
+                    <div class="hint">Sets the global brightness byte in the ColorLight latch frame.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HARDWARE -->
+    <div class="tab-panel" id="tab-hardware">
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">
+
+            <div>
+                <div class="card" style="margin-bottom:20px">
+                    <h2>🖥️ Screens / Ports</h2>
+                    <p style="font-size:.85em;color:var(--sub);margin-bottom:14px;">
+                        Add one row per ColorLight output port. Canvas X/Y must match your LEDVision configuration.
+                    </p>
+                    <div id="screen-list"></div>
+                    <button class="btn btn-ghost" onclick="addScreen()">+ Add Screen / Port</button>
+                </div>
+
+                <div class="card">
+                    <h2>📐 LEDVision Setup Guide</h2>
+                    <ol style="font-size:.88em;line-height:1.7;padding-left:18px;color:var(--sub)">
+                        <li>Connect the ColorLight card to a Windows PC running LEDVision.</li>
+                        <li>Open <strong>Controller → Detect Receiver Cards</strong>.</li>
+                        <li>Create a screen. Set total resolution to match the canvas size shown in the preview.</li>
+                        <li>For each port, set panel type, scan type (usually 1/16 for P5), and the X offset matching Canvas X above.</li>
+                        <li>Click <strong>Send to Receiver</strong> to save permanently.</li>
+                        <li>Disconnect from Windows. Connect USB-GigE to Pi.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card" style="position:sticky;top:80px">
+                <h2>Canvas Preview</h2>
+                <p style="font-size:.82em;color:var(--sub);margin-bottom:10px" id="canvas-dims">Computing…</p>
+                <div class="canvas-wrap">
+                    <div id="canvas-preview"></div>
+                </div>
+                <div style="display:flex;gap:14px;margin-top:10px;font-size:.8em">
+                    <span style="color:#e74c3c">■ Title screen</span>
+                    <span style="color:#2ecc71">■ Names screen</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIMING -->
+    <div class="tab-panel" id="tab-timing">
+        <div class="grid">
+            <div class="card">
+                <h2>⏱️ Display Timing</h2>
+                <div class="field">
+                    <label>Seconds per list</label>
+                    <input type="number" id="display_time" min="3" max="300">
+                    <div class="hint">How long Naughty (or Nice) shows before switching.</div>
+                </div>
+                <div class="field">
+                    <label>Scroll speed (1 = slow, 10 = fast)</label>
+                    <input type="number" id="scroll_speed" min="1" max="10">
+                </div>
+            </div>
+            <div class="card">
+                <h2>🕐 Active Hours</h2>
+                <div class="field">
+                    <label>Display on from / to</label>
+                    <div class="field-row">
+                        <input type="time" id="active_start">
+                        <input type="time" id="active_end">
+                    </div>
+                    <div class="hint">Leave both blank for always-on. Outside these hours panels go dark.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPEARANCE -->
+    <div class="tab-panel" id="tab-appearance">
+        <div class="grid">
+            <div class="card">
+                <h2>🔤 Typography</h2>
+                <div class="field">
+                    <label>Font file name</label>
+                    <input type="text" id="font_family" placeholder="MountainsOfChristmas-Bold">
+                    <div class="hint">Name of the .ttf file in the <code>fonts/</code> folder (without .ttf).</div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Title font size (px)</label>
+                        <input type="number" id="title_font_size" min="4" max="256">
+                    </div>
+                    <div class="field">
+                        <label>Names font size (px)</label>
+                        <input type="number" id="name_font_size" min="4" max="256">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎨 Colours</h2>
+                <?php /* rendered by JS */ ?>
+                <div id="color-fields"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRESETS -->
+    <div class="tab-panel" id="tab-presets">
+        <div class="card">
+            <h2>💾 Hardware Presets</h2>
+            <p style="font-size:.87em;color:var(--sub);margin-bottom:16px;">
+                Save your current screen layout as a named preset. Useful if you run this on multiple props with different panel configs.
+            </p>
+            <div class="preset-bar">
+                <select id="preset-select"><option value="">— select a preset —</option></select>
+                <button class="btn btn-ghost" onclick="loadPreset()">Load</button>
+                <button class="btn btn-danger btn-sm" onclick="deletePreset()">Delete</button>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <input type="text" id="preset-name" placeholder="Preset name…" style="padding:8px 11px;border:1px solid #ccd;border-radius:6px;width:200px">
+                <button class="btn btn-success" onclick="savePreset()">💾 Save Current as Preset</button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- .container -->
+
+    <!-- PREVIEW TAB -->
+    <div class="tab-panel" id="tab-preview">
+        <div class="card">
+            <h2>🖥️ Live Display Preview</h2>
+            <p style="font-size:.85em;color:var(--sub);margin-bottom:14px;">
+                Shows exactly what is currently rendering on your P5 panels — fetched on demand.
+                The image is not updated automatically; click Refresh to pull a new frame.
+            </p>
+
+            <div id="preview-status" style="font-size:.85em;margin-bottom:12px;color:var(--sub)">
+                Click Refresh to load a preview frame.
+            </div>
+
+            <div style="background:#111;border-radius:10px;padding:12px;display:inline-block;min-width:200px;min-height:80px;position:relative">
+                <img id="preview-img"
+                     style="display:none;image-rendering:pixelated;image-rendering:-moz-crisp-edges;
+                            max-width:100%;border-radius:6px;display:block"
+                     alt="Display preview">
+                <div id="preview-placeholder"
+                     style="color:#444;font-size:.85em;text-align:center;padding:30px 20px">
+                    No preview loaded
+                </div>
+            </div>
+
+            <br><br>
+            <button class="btn btn-primary" id="refresh-preview">🔄 Refresh Preview</button>
+            <button class="btn btn-ghost"   id="auto-preview-toggle" data-running="0" style="margin-left:8px">
+                ▶️ Auto-refresh (5s)
+            </button>
+            <span id="preview-timestamp" style="font-size:.78em;color:var(--sub);margin-left:12px"></span>
+        </div>
+
+        <div class="card">
+            <h2>🔄 Plugin Updates</h2>
+            <p>Current version: <strong id="current-ver">v1.0.0</strong></p>
+            <div id="update-result" style="font-size:.9em;margin:10px 0"></div>
+            <button class="btn btn-ghost" id="check-update-btn">🔍 Check for Updates</button>
+            <p style="font-size:.78em;color:var(--sub);margin-top:8px">
+                Updates are checked against your configured GitHub repository.
+                Set <code>github.user</code> and <code>github.repo</code> in the Connection tab.
+            </p>
+        </div>
+    </div>
+
+
+<div class="save-bar">
+    <button class="btn btn-primary" onclick="saveSettings()">💾 Save All Settings</button>
+    <button class="btn btn-ghost"   onclick="restartDisplay()">🔄 Restart Display</button>
+    <span class="save-msg" id="save-msg">✅ Saved!</span>
+</div>
+
+<script>
+// ─── State ─────────────────────────────────────────────────────────────────────
+let S = {};   // current settings object
+let dirty = false;
+
+const COLOR_FIELDS = [
+    { id: 'naughty_color', label: '"NAUGHTY" title colour' },
+    { id: 'nice_color',    label: '"NICE" title colour'    },
+    { id: 'name_color',    label: 'Names text colour'      },
+    { id: 'bg_naughty',    label: 'Naughty background'     },
+    { id: 'bg_nice',       label: 'Nice background'        },
+];
+
+// ─── Boot ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    buildColorFields();
+    setupTabs();
+    loadSettings();
+    setInterval(pollStatus, 5000);
+});
+
+// ─── Tabs ──────────────────────────────────────────────────────────────────────
+function setupTabs() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+        });
+    });
+}
+
+// ─── Load settings from server ─────────────────────────────────────────────────
+async function loadSettings() {
+    try {
+        const r = await fetch('/nnl/api/settings');
+        S = await r.json();
+        populateForm(S);
+        renderScreenList(S.screens || []);
+        renderPresets(S.presets || []);
+        updateCanvasPreview(S.screens || []);
+    } catch(e) {
+        console.error('Failed to load settings:', e);
+    }
+}
+
+function populateForm(s) {
+    setVal('api_url',          s.api?.url           ?? '');
+    setVal('api_key',          s.api?.key           ?? '');
+    setVal('poll_interval',    s.api?.poll_interval ?? 30);
+    setVal('limit',            s.api?.limit         ?? 50);
+    setVal('order',            s.api?.order         ?? 'recent');
+    setVal('iface',            s.network?.iface     ?? 'eth1');
+    setVal('brightness',       s.display?.brightness ?? 255);
+    setVal('display_time',     s.timing?.display_time  ?? 15);
+    setVal('scroll_speed',     s.display?.scroll_speed ?? 3);
+    setVal('active_start',     s.timing?.active_start  ?? '');
+    setVal('active_end',       s.timing?.active_end    ?? '');
+    setVal('font_family',      s.display?.font_family      ?? '');
+    setVal('title_font_size',  s.display?.title_font_size  ?? 22);
+    setVal('name_font_size',   s.display?.name_font_size   ?? 14);
+    COLOR_FIELDS.forEach(f => {
+        setVal(f.id, s.display?.[f.id] ?? '#ffffff');
+        const swatch = document.getElementById('swatch-'+f.id);
+        if (swatch) swatch.value = s.display?.[f.id] ?? '#ffffff';
+    });
+}
+
+function collectForm() {
+    const screens = getScreensFromDOM();
+    const canvas  = computeCanvas(screens);
+    return {
+        api: {
+            url:           getVal('api_url'),
+            key:           getVal('api_key'),
+            poll_interval: +getVal('poll_interval') || 30,
+            limit:         +getVal('limit')         || 50,
+            order:         getVal('order'),
+        },
+        network: {
+            iface: getVal('iface'),
+        },
+        timing: {
+            display_time:  +getVal('display_time') || 15,
+            active_start:  getVal('active_start'),
+            active_end:    getVal('active_end'),
+        },
+        canvas,
+        screens,
+        display: {
+            font_family:     getVal('font_family'),
+            title_font_size: +getVal('title_font_size') || 22,
+            name_font_size:  +getVal('name_font_size')  || 14,
+            scroll_speed:    +getVal('scroll_speed')    || 3,
+            brightness:      +getVal('brightness')      || 255,
+            ...Object.fromEntries(COLOR_FIELDS.map(f => [f.id, getVal(f.id)])),
+        },
+        presets: S.presets || [],
+    };
+}
+
+// ─── Save ──────────────────────────────────────────────────────────────────────
+async function saveSettings() {
+    const data = collectForm();
+    try {
+        const r = await fetch('/nnl/api/settings', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data),
+        });
+        if (r.ok) {
+            S = data;
+            dirty = false;
+            showMsg();
+            document.getElementById('restart-notice').classList.add('show');
+        }
+    } catch(e) { alert('Save failed: ' + e); }
+}
+
+// ─── Restart display process ───────────────────────────────────────────────────
+async function restartDisplay() {
+    if (!confirm('Restart the display process? It will go dark for a moment.')) return;
+    await fetch('/nnl/api/restart', { method:'POST' });
+    document.getElementById('restart-notice').classList.remove('show');
+}
+
+// ─── Status poll ───────────────────────────────────────────────────────────────
+async function pollStatus() {
+    try {
+        const r = await fetch('/nnl/api/status');
+        const d = await r.json();
+        const ind = document.getElementById('status-indicator');
+        const txt = document.getElementById('status-text');
+        if (d.running) {
+            ind.className = 'status live';
+            txt.textContent = `Running — ${d.current_list?.toUpperCase() || '?'} list — ${d.naughty_count} naughty / ${d.nice_count} nice`;
+        } else {
+            ind.className = 'status error';
+            txt.textContent = 'Display not running';
+        }
+    } catch(e) {
+        document.getElementById('status-indicator').className = 'status error';
+        document.getElementById('status-text').textContent = 'Cannot reach Pi server';
+    }
+}
+
+// ─── API test ──────────────────────────────────────────────────────────────────
+async function testApi() {
+    const el = document.getElementById('api-test-result');
+    el.textContent = 'Testing…'; el.style.color = '#888';
+    try {
+        const r = await fetch('/nnl/api/test-connection');
+        const d = await r.json();
+        if (d.ok) {
+            el.textContent = `✅ Connected — ${d.naughty} naughty, ${d.nice} nice`;
+            el.style.color = 'green';
+        } else {
+            el.textContent = `❌ ${d.error}`;
+            el.style.color = 'red';
+        }
+    } catch(e) { el.textContent = '❌ Error'; el.style.color='red'; }
+}
+
+// ─── Screen list ───────────────────────────────────────────────────────────────
+function renderScreenList(screens) {
+    const list = document.getElementById('screen-list');
+    list.innerHTML = '';
+    (screens||[]).forEach((s,i) => list.appendChild(makeScreenRow(s,i)));
+    updateCanvasPreview(getScreensFromDOM());
+}
+
+function makeScreenRow(s, i) {
+    const div = document.createElement('div');
+    div.className = 'screen-row';
+    div.innerHTML = `
+    <div class="screen-row-head">
+        <strong class="row-title">${esc(s.label||'Screen '+(i+1))}</strong>
+        <button class="btn btn-ghost btn-sm" onclick="moveRow(this,-1)">↑</button>
+        <button class="btn btn-ghost btn-sm" onclick="moveRow(this,1)">↓</button>
+        <button class="btn btn-danger btn-sm" onclick="this.closest('.screen-row').remove();refreshPreview()">✕</button>
+    </div>
+    <div class="screen-fields">
+        <div class="field"><label>Label</label>
+            <input type="text" name="label" value="${esc(s.label||'')}" oninput="this.closest('.screen-row').querySelector('.row-title').textContent=this.value;refreshPreview()">
+        </div>
+        <div class="field"><label>Port</label>
+            <input type="text" name="port" value="${esc(s.port||'J'+(i+1))}" style="width:70px" oninput="refreshPreview()">
+        </div>
+        <div class="field"><label>Role</label>
+            <select name="role" onchange="refreshPreview()">
+                <option value="title" ${s.role==='title'?'selected':''}>🔤 Title</option>
+                <option value="names" ${s.role!=='title'?'selected':''}>📋 Names</option>
+            </select>
+        </div>
+        <div class="field"><label>Canvas X (px)</label>
+            <input type="number" name="canvas_x" value="${s.canvas_x||0}" min="0" oninput="refreshPreview()">
+        </div>
+        <div class="field"><label>Canvas Y (px)</label>
+            <input type="number" name="canvas_y" value="${s.canvas_y||0}" min="0" oninput="refreshPreview()">
+        </div>
+        <div class="field"><label>Panel W (px)</label>
+            <input type="number" name="panel_w" value="${s.panel_w||64}" min="1" oninput="refreshPreview()">
+        </div>
+        <div class="field"><label>Panel H (px)</label>
+            <input type="number" name="panel_h" value="${s.panel_h||32}" min="1" oninput="refreshPreview()">
+        </div>
+        <div class="field"><label>Panels wide</label>
+            <input type="number" name="panels_wide" value="${s.panels_wide||1}" min="1" oninput="refreshPreview()">
+        </div>
+        <div class="field"><label>Panels tall</label>
+            <input type="number" name="panels_tall" value="${s.panels_tall||1}" min="1" oninput="refreshPreview()">
+        </div>
+    </div>
+    <div class="screen-calc" id="calc-${i}"></div>`;
+    return div;
+}
+
+function addScreen() {
+    const existing = getScreensFromDOM();
+    const autoX = existing.reduce((m,s) => Math.max(m, (s.canvas_x||0)+(s.panel_w||64)*(s.panels_wide||1)), 0);
+    const idx = existing.length;
+    const list = document.getElementById('screen-list');
+    list.appendChild(makeScreenRow({
+        id:'screen_'+Date.now(), label:'Screen '+(idx+1),
+        role:'names', port:'J'+(idx+1),
+        canvas_x:autoX, canvas_y:0,
+        panel_w:64, panel_h:32, panels_wide:1, panels_tall:1,
+    }, idx));
+    refreshPreview();
+}
+
+function moveRow(btn, dir) {
+    const row  = btn.closest('.screen-row');
+    const list = row.parentNode;
+    if (dir===-1 && row.previousElementSibling) list.insertBefore(row, row.previousElementSibling);
+    if (dir===1  && row.nextElementSibling)     list.insertBefore(row.nextElementSibling, row);
+    refreshPreview();
+}
+
+function getScreensFromDOM() {
+    return Array.from(document.querySelectorAll('.screen-row')).map(row => ({
+        id:          row.querySelector('[name=label]')?.value.toLowerCase().replace(/\W+/g,'_') || ('s_'+Date.now()),
+        label:       row.querySelector('[name=label]')?.value        || '',
+        role:        row.querySelector('[name=role]')?.value         || 'names',
+        port:        row.querySelector('[name=port]')?.value         || '',
+        canvas_x:    +row.querySelector('[name=canvas_x]')?.value   || 0,
+        canvas_y:    +row.querySelector('[name=canvas_y]')?.value   || 0,
+        panel_w:     +row.querySelector('[name=panel_w]')?.value    || 64,
+        panel_h:     +row.querySelector('[name=panel_h]')?.value    || 32,
+        panels_wide: +row.querySelector('[name=panels_wide]')?.value || 1,
+        panels_tall: +row.querySelector('[name=panels_tall]')?.value || 1,
+    }));
+}
+
+function refreshPreview() {
+    const screens = getScreensFromDOM();
+    updateCanvasPreview(screens);
+}
+
+// ─── Canvas preview ────────────────────────────────────────────────────────────
+const PREVIEW_W = 400;
+
+function computeCanvas(screens) {
+    let w=0, h=0;
+    (screens||[]).forEach(s => {
+        w = Math.max(w, (s.canvas_x||0) + (s.panel_w||64)*(s.panels_wide||1));
+        h = Math.max(h, (s.canvas_y||0) + (s.panel_h||32)*(s.panels_tall||1));
+    });
+    return { width: Math.max(w,1), height: Math.max(h,1) };
+}
+
+function updateCanvasPreview(screens) {
+    const canvas = computeCanvas(screens);
+    const scale  = Math.min(1, PREVIEW_W / canvas.width);
+    const pW = Math.round(canvas.width  * scale);
+    const pH = Math.round(canvas.height * scale);
+
+    const el = document.getElementById('canvas-preview');
+    el.style.width  = pW + 'px';
+    el.style.height = pH + 'px';
+    el.innerHTML = '';
+
+    screens.forEach(s => {
+        const bw = (s.panel_w||64) * (s.panels_wide||1);
+        const bh = (s.panel_h||32) * (s.panels_tall||1);
+        const b  = document.createElement('div');
+        b.className = `canvas-block role-${s.role||'names'}`;
+        b.style.cssText = `left:${Math.round(s.canvas_x*scale)}px;top:${Math.round(s.canvas_y*scale)}px;width:${Math.round(bw*scale)}px;height:${Math.round(bh*scale)}px`;
+        b.title = `${s.port} — ${s.label} — ${bw}×${bh}px`;
+        b.innerHTML = `<span>${esc(s.port||'')}<br>${esc(s.label||'')}</span>`;
+        el.appendChild(b);
+    });
+
+    document.getElementById('canvas-dims').textContent = `Canvas: ${canvas.width} × ${canvas.height} px`;
+}
+
+// ─── Color fields ──────────────────────────────────────────────────────────────
+function buildColorFields() {
+    const wrap = document.getElementById('color-fields');
+    COLOR_FIELDS.forEach(f => {
+        wrap.insertAdjacentHTML('beforeend', `
+        <div class="field">
+            <label>${esc(f.label)}</label>
+            <div class="color-row">
+                <input type="color" id="swatch-${f.id}" oninput="document.getElementById('${f.id}').value=this.value">
+                <input type="text"  id="${f.id}" maxlength="7" oninput="document.getElementById('swatch-${f.id}').value=this.value">
+            </div>
+        </div>`);
+    });
+}
+
+// ─── Presets ───────────────────────────────────────────────────────────────────
+function renderPresets(presets) {
+    const sel = document.getElementById('preset-select');
+    sel.innerHTML = '<option value="">— select a preset —</option>';
+    (presets||[]).forEach((p,i) => {
+        const opt = document.createElement('option');
+        opt.value = i; opt.textContent = p.name;
+        sel.appendChild(opt);
+    });
+}
+
+async function savePreset() {
+    const name = document.getElementById('preset-name').value.trim();
+    if (!name) { alert('Enter a preset name.'); return; }
+    const screens = getScreensFromDOM();
+    S.presets = [...(S.presets||[]), { name, screens }];
+    await fetch('/nnl/api/presets', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(S.presets),
+    });
+    renderPresets(S.presets);
+    document.getElementById('preset-name').value = '';
+    showMsg();
+}
+
+function loadPreset() {
+    const idx = document.getElementById('preset-select').value;
+    if (idx === '') { alert('Select a preset.'); return; }
+    if (!confirm('Load this preset? Current screen layout will be replaced.')) return;
+    const screens = S.presets[+idx]?.screens || [];
+    renderScreenList(screens);
+}
+
+async function deletePreset() {
+    const idx = document.getElementById('preset-select').value;
+    if (idx === '') { alert('Select a preset.'); return; }
+    if (!confirm('Delete this preset?')) return;
+    S.presets.splice(+idx, 1);
+    await fetch('/nnl/api/presets', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(S.presets),
+    });
+    renderPresets(S.presets);
+}
+
+// ─── Utils ─────────────────────────────────────────────────────────────────────
+function getVal(id) { return document.getElementById(id)?.value ?? ''; }
+function setVal(id, v) { const el = document.getElementById(id); if(el) el.value = v; }
+function showMsg() {
+    const m = document.getElementById('save-msg');
+    m.classList.add('show');
+    setTimeout(()=>m.classList.remove('show'), 2500);
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
