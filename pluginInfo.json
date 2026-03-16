@@ -1,13 +1,30 @@
 {
-    "name": "nnl_display",
-    "version": "1.0.0",
-    "description": "Naughty or Nice List FPP Plugin v1.0.0 \u2014 drives P5 panels via ColorLight raw Ethernet with live settings UI at port 8180",
-    "author": "Johnathan Evans",
-    "type": "plugin",
-    "provides": [
-        "script"
-    ],
-    "requires": {
-        "fppVersion": "6.0"
-    }
+	"repoName": "nnl_display",
+	"name": "Naughty Nice List Display",
+	"author": "Johnathan Evans",
+	"description": "Naughty or Nice List FPP Plugin v1.0.0 \u2014 drives P5 panels via ColorLight raw Ethernet with live settings UI at port 8180",
+	"homeURL": "https://github.com/baelinc/nnl_display",
+	"srcURL": "https://github.com/baelinc/nnl_display.git",
+	"bugURL": "https://github.com/baelinc/nnl_display/issues",
+	"allowUpdates": 1,
+	"versions": [
+        {
+            "minFPPVersion": "7.1",
+            "maxFPPVersion": "7.99",
+            "branch": "FPP7",
+            "sha": ""
+        },
+        {
+            "minFPPVersion": "8.0",
+            "maxFPPVersion": "8.99",
+            "branch": "master",
+            "sha": ""
+        },
+        {
+            "minFPPVersion": "9.0",
+            "maxFPPVersion": "0",
+            "branch": "master",
+            "sha": ""
+        }
+	]
 }
