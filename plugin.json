@@ -2,7 +2,7 @@
     "name": "nnl_display",
     "version": "1.0.0",
     "description": "Naughty or Nice List FPP Plugin v1.0.0 \u2014 drives P5 panels via ColorLight raw Ethernet with live settings UI at port 8180",
-    "author": "Your Name",
+    "author": "Johnathan Evans",
     "type": "plugin",
     "provides": [
         "script"
