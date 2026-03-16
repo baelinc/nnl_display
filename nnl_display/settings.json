@@ -1,0 +1,98 @@
+{
+    "_comment": "NNL FPP Plugin v1.0.0 — edit via web UI at http://<Pi-IP>:8180 or directly here",
+    "version": "1.0.0",
+    "github": {
+        "user": "YOUR-USERNAME",
+        "repo": "naughty-nice-fpp",
+        "_comment": "Set these to your GitHub username and repo name for auto-update notifications"
+    },
+
+    "api": {
+        "url":           "https://YOUR-WORDPRESS-SITE.com/wp-json/nnl/v1/names",
+        "key":           "",
+        "poll_interval": 30,
+        "limit":         50,
+        "order":         "recent"
+    },
+
+    "network": {
+        "iface": "eth1"
+    },
+
+    "timing": {
+        "display_time":  15,
+        "active_start":  "",
+        "active_end":    ""
+    },
+
+    "canvas": {
+        "width":  256,
+        "height": 64
+    },
+
+    "screens": [
+        {
+            "id":          "title",
+            "label":       "Title Screen (Top)",
+            "role":        "title",
+            "port":        "J1",
+            "canvas_x":    0,
+            "canvas_y":    0,
+            "panel_w":     64,
+            "panel_h":     32,
+            "panels_wide": 1,
+            "panels_tall": 1
+        },
+        {
+            "id":          "names_left",
+            "label":       "Names — Left Column",
+            "role":        "names",
+            "port":        "J2",
+            "canvas_x":    64,
+            "canvas_y":    0,
+            "panel_w":     64,
+            "panel_h":     32,
+            "panels_wide": 1,
+            "panels_tall": 2
+        },
+        {
+            "id":          "names_center",
+            "label":       "Names — Center Column",
+            "role":        "names",
+            "port":        "J3",
+            "canvas_x":    128,
+            "canvas_y":    0,
+            "panel_w":     64,
+            "panel_h":     32,
+            "panels_wide": 1,
+            "panels_tall": 2
+        },
+        {
+            "id":          "names_right",
+            "label":       "Names — Right Column",
+            "role":        "names",
+            "port":        "J4",
+            "canvas_x":    192,
+            "canvas_y":    0,
+            "panel_w":     64,
+            "panel_h":     32,
+            "panels_wide": 1,
+            "panels_tall": 2
+        }
+    ],
+
+    "display": {
+        "font_family":      "MountainsOfChristmas-Bold",
+        "title_font_size":  22,
+        "name_font_size":   14,
+        "scroll_speed":     3,
+        "naughty_color":    "#FF3333",
+        "nice_color":       "#33CC66",
+        "name_color":       "#FFFFFF",
+        "bg_naughty":       "#1a0000",
+        "bg_nice":          "#001a0a",
+        "brightness":       255
+    },
+
+    "presets": []
+}
